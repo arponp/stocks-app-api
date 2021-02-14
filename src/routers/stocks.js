@@ -9,13 +9,14 @@ dotenv.config();
 router.get('/stocks/tickers/info', async (req, res) => {
     try {
         const { data } = await axios.get(`http://api.marketstack.com/v1/tickers?access_key=${process.env.MARKET_STACK_API_KEY}&symbols=${req.query.symbol}`);
-        res.send(data);
+        let results = { ...data.data[0], price: 50 };
+        res.send(JSON.stringify(results));
     } catch (e) {
         res.status(400).send(e);
     }
 });
 
-//price
+// price
 router.get('/stocks/tickers/price', async (req, res) => {
     try {
         const date = new Date();
