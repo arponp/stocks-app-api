@@ -1,19 +1,25 @@
 import mongoose from 'mongoose';
 
-const Stock = mongoose.model('Stock', {
-    price: {
-        type: Number,
-        required: true
-    },
-    description: {
+const stockSchema = new mongoose.Schema({
+    symbol: {
         type: String,
         required: true
     },
-    owner: {
-        type: mongoose.model,
-        required: true,
-        ref: 'User'
+    companyName: {
+        type: String,
+        required: true
+    },
+    stockExchangeName: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
     }
 });
 
+const Stock = mongoose.model('Stock', stockSchema);
+
 export default Stock;
+

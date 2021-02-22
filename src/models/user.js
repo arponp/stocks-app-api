@@ -1,7 +1,11 @@
 import mongoose from 'mongoose';
 
-const User = mongoose.model('User', {
-    username: {
+const userSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required:true
+    },
+    email: {
         type: String,
         unique: true,
         required: true
@@ -10,7 +14,12 @@ const User = mongoose.model('User', {
         type: String,
         required: true
     },
+    portfolioId: {
+        type: mongoose.Schema.Types.ObjectId
+    }
 });
+
+const User = mongoose.model('User', userSchema);
 
 export default User;
 
