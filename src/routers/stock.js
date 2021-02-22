@@ -6,16 +6,6 @@ import Stock from '../models/stock.js';
 const router = new express.Router();
 dotenv.config();
 
-router.post('/stocks', async (req,res) => {
-    const stock = new Stock(req.body);
-
-    try {
-        await stock.save();
-        res.status(201).send(stock);
-    } catch (e) {
-        res.status(400).send(e);
-    }
-});
 
 // info about ticker e.g company, exchange, 
 // router.get('/stocks/tickers/info', async (req, res) => {
