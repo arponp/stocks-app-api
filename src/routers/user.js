@@ -10,6 +10,7 @@ router.post("/users", async (req, res) => {
   const portfolio = new Portfolio({
     owner: req.body.email,
     lastUpdated: new Date(),
+    stocks: {},
   });
   try {
     await user.save();

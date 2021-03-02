@@ -1,40 +1,32 @@
 import express from "express";
-import axios from "axios";
 import dotenv from "dotenv";
-import Stock from '../models/stock.js';
+import axios from "axios";
+import Stock from "../models/stock.js";
 
-const router = new express.Router();
 dotenv.config();
+const router = new express.Router();
+const apiKey = process.env.MARKET_STACK_API_KEY;
 
+router.get("/admin/tickers", async (req, res) => {
+  try {
+    await Stock.deleteMany({});
+    const { data } = await axios.get(
+      "https://pkgstore.datahub.io/core/s-and-p-500-companies/constituents_json/data/0e5db1e7676fbd54248b1de218b5a908/constituents_json.json"
+    );
 
-// info about ticker e.g company, exchange, 
-// router.get('/stocks/tickers/info', async (req, res) => {
-//     try {
-//         const { data } = await axios.get(`http://api.marketstack.com/v1/tickers?access_key=${process.env.MARKET_STACK_API_KEY}&symbols=${req.query.symbol}`);
-//         let results = { ...data.data[0], price: 50 };
-//         res.send(JSON.stringify(results));
-//     } catch (e) {
-//         res.status(400).send(e);
-//     }
-// });
+    for (const company of data) {
+      const stock = new Stock({
+        symbol: company.Symbol,
+        companyName: company.Name,
+      });
 
-// price
-// router.get('/stocks/tickers/price', async (req, res) => {
-//     try {
-//         const date = new Date();
-//         const day = date.getDay();
-//         let response;
-//         if (day == 0 || day == 7) {
-//             // eod
-//             response = await axios.get(`http://api.marketstack.com/v1/eod?access_key=${process.env.MARKET_STACK_API_KEY}&symbols=${req.query.symbol}`);
-//         } else {
-//             //intraday
-//             response = await axios.get(`http://api.marketstack.com/v1/intraday?access_key=${process.env.MARKET_STACK_API_KEY}&symbols=${req.query.symbol}`);
-//         }
-//         res.status(200).send(response.data);
-//     } catch (e) {
-//         res.status(400).send(e);
-//     }
-// });
+      await stock.save();
+    }
+    res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send();
+  }
+});
 
 export default router;

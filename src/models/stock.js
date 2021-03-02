@@ -7,15 +7,11 @@ const stockSchema = new mongoose.Schema({
   },
   companyName: {
     type: String,
-    required: true,
+    required: false,
   },
   stockExchangeName: {
     type: String,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
+    required: false,
   },
 });
 

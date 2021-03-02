@@ -7,7 +7,7 @@ router.get("/portfolio", async (req, res) => {
   // get portfolio
   try {
     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
-    res.send(portfolio.stocks);
+    res.send(portfolio);
   } catch (e) {
     res.status(400).send();
   }
@@ -19,35 +19,47 @@ router.post("/portfolio", async (req, res) => {
     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
     portfolio.lastUpdated = new Date();
     for (let stock of req.body.stocks) {
+      const symbol = stock.symbol.toUpperCase();
       const newStock = PortfolioStock({
-        symbol: stock.symbol.toUpperCase(),
+        symbol,
         companyName: "corp",
         stockExchangeName: "nyse",
         price: stock.avgCost,
         quantity: stock.quantity,
       });
-      portfolio.stocks.push(newStock);
+
+      portfolio.stocks = { ...portfolio.stocks };
+      portfolio.stocks[stock.symbol.toUpperCase()] = "hi";
     }
     await portfolio.save();
-    res.send(portfolio);
+    res.send(portfolio.stocks);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send();
+  }
+});
+
+router.put("/portfolio", async (req, res) => {
+  // edit portfolio
+  try {
+    for (let stock of req.body.stocks) {
+      const portfolio = await Portfolio.findOne({ owner: req.body.owner });
+    }
   } catch (e) {
     res.status(400).send();
   }
 });
 
-router.delete("/portfolio", async (req, res) => {
-  // remove stock from portfolio
-  try {
-    const portfolio = await Portfolio.findOne({ owner: req.body.owner });
-    portfolio.lastUpdated = new Date();
-    portfolio.stocks = portfolio.stocks.filter((stock) => {
-      return stock.symbol != req.body.symbol;
-    });
-    await portfolio.save();
-    res.send(portfolio);
-  } catch (e) {
-    res.status(400).send();
-  }
-});
+// router.delete("/portfolio/stock", async (req, res) => {
+//   // remove stock from portfolio
+//   try {
+//     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
+//     portfolio.lastUpdated = new Date();
+//     delete portfolio.stocks[req.body.symbol.toUpperCase()];
+//     await
+//   } catch (e) {
+//     res.status(400).send();
+//   }
+// });
 
 export default router;

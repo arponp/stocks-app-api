@@ -28,7 +28,11 @@ const portfolioSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  stocks: [portfolioStockSchema],
+  //   stocks: [portfolioStockSchema],
+  stocks: {
+    type: Map,
+    of: String,
+  },
   lastUpdated: {
     type: Date,
     required: true,
