@@ -7,6 +7,19 @@ dotenv.config();
 const router = new express.Router();
 const apiKey = process.env.MARKET_STACK_API_KEY;
 
+router.get("/stock/:symbol", async (req, res) => {
+  try {
+    console.log(req.params.symbol);
+    const stock = await Stock.findOne({
+      symbol: req.params.symbol.toUpperCase(),
+    });
+    res.send(stock);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send();
+  }
+});
+
 router.get("/admin/tickers", async (req, res) => {
   try {
     await Stock.deleteMany({});
@@ -23,6 +36,20 @@ router.get("/admin/tickers", async (req, res) => {
       await stock.save();
     }
     res.status(200).send();
+  } catch (e) {
+    console.log(e);
+    res.status(400).send();
+  }
+});
+
+router.get("/admin/data", async (req, res) => {
+  try {
+    const data = await Stock.find();
+    const tickers = [];
+    for (let i = 0; i < data.length; i++) {
+      tickers.push(data[i].symbol);
+    }
+    res.send(tickers);
   } catch (e) {
     console.log(e);
     res.status(400).send();
