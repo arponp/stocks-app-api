@@ -14,6 +14,4 @@ app.use(stockRouter);
 app.use(userRouter);
 app.use(portfolioRouter);
 
-app.get("/", (req, res) => res.status(200).send("Hello World"));
-
 app.listen(port, () => console.log(`Listening on port ${port}`));

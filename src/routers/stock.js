@@ -26,16 +26,14 @@ router.get("/admin/tickers", async (req, res) => {
     const { data } = await axios.get(
       "https://pkgstore.datahub.io/core/s-and-p-500-companies/constituents_json/data/0e5db1e7676fbd54248b1de218b5a908/constituents_json.json"
     );
-
     for (const company of data) {
       const stock = new Stock({
         symbol: company.Symbol,
-        companyName: company.Name,
+        name: company.Name,
       });
-
       await stock.save();
     }
-    res.status(200).send();
+    res.status(200).send("Success");
   } catch (e) {
     console.log(e);
     res.status(400).send();

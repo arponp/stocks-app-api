@@ -3,15 +3,36 @@ import mongoose from "mongoose";
 const stockSchema = new mongoose.Schema({
   symbol: {
     type: String,
-    required: true,
   },
-  companyName: {
+  name: {
     type: String,
-    required: false,
   },
-  stockExchangeName: {
+  exchange: {
     type: String,
-    required: false,
+  },
+  hasIntraday: {
+    type: Boolean,
+  },
+  hasEod: {
+    type: Boolean,
+  },
+  open: {
+    type: Number,
+  },
+  close: {
+    type: Number,
+  },
+  high: {
+    type: Number,
+  },
+  low: {
+    type: Number,
+  },
+  volume: {
+    type: Number,
+  },
+  date: {
+    type: Date,
   },
 });
 
