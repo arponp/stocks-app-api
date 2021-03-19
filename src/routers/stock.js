@@ -42,15 +42,22 @@ router.get("/admin/tickers", async (req, res) => {
 
 router.get("/admin/data", async (req, res) => {
   try {
-    const data = await Stock.find();
-    const tickers = [];
-    for (let i = 0; i < data.length; i++) {
-      tickers.push(data[i].symbol);
+    const stockData = await Stock.find();
+    let symbols = [];
+    for (let i = 0; i < stockData.length; i++) {
+      symbols.push(stockData[i].symbol);
+      if (symbols.length == 20 || i == stockData.length - 1) {
+        for (let symbol of symbols) {
+          url += symbol + ",";
+        }
+        const { data } = await axios.get(url);
+        console.log(data);
+        symbols = [];
+      }
     }
-    res.send(tickers);
+    res.send("Success");
   } catch (e) {
-    console.log(e);
-    res.status(400).send();
+    res.status(400).send(e);
   }
 });
 

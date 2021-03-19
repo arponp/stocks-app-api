@@ -15,7 +15,7 @@ router.post("/users", async (req, res) => {
   try {
     await user.save();
     await portfolio.save();
-    res.status(201).send({ user });
+    res.status(201).send({ _id: user._id });
   } catch (e) {
     res.status(400).send(e);
   }
