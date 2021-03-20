@@ -32,9 +32,27 @@ router.post("/portfolio", async (req, res) => {
       }
     }
     await portfolio.save();
+    res.status(201).send(portfolio.stocks);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+router.patch("/portfolio", async (req, res) => {
+  try {
+    const portfolio = await Portfolio.findOne({ owner: req.body.owner });
+    for (const stock of req.body.stocks) {
+      for (let i = 0; i < portfolio.stocks.length; i++) {
+        if (portfolio.stocks[i].symbol == stock.symbol) {
+          portfolio.stocks[i].quantity = stock.quantity;
+        }
+      }
+    }
+    await portfolio.save();
     res.send(portfolio.stocks);
   } catch (e) {
     res.status(400).send(e);
   }
 });
+
 export default router;
