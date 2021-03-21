@@ -14,10 +14,10 @@ router.get("/portfolio/:id", async (req, res) => {
 });
 
 router.post("/portfolio", async (req, res) => {
+  // add to portfolio
   try {
     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
     for (const stock of req.body.stocks) {
-      // check if ticker already exists
       let foundIndex = -1;
       for (let i = 0; i < portfolio.stocks.length; i++) {
         if (portfolio.stocks[i].symbol == stock.symbol) {
@@ -35,17 +35,23 @@ router.post("/portfolio", async (req, res) => {
     await portfolio.save();
     res.status(201).send(portfolio.stocks);
   } catch (e) {
+    console.log(e);
     res.status(400).send(e);
   }
 });
 
 router.patch("/portfolio", async (req, res) => {
+  // update stock quantity in portfolio
   try {
     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
     for (const stock of req.body.stocks) {
       for (let i = 0; i < portfolio.stocks.length; i++) {
         if (portfolio.stocks[i].symbol == stock.symbol) {
-          portfolio.stocks[i].quantity = stock.quantity;
+          if (stock.quantity == 0) {
+            portfolio.stocks.splice(i, 1);
+          } else {
+            portfolio.stocks[i].quantity = stock.quantity;
+          }
         }
       }
     }
@@ -53,6 +59,7 @@ router.patch("/portfolio", async (req, res) => {
     await portfolio.save();
     res.status(202).send(portfolio.stocks);
   } catch (e) {
+    console.log(e);
     res.status(400).send(e);
   }
 });
