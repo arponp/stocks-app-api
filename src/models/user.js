@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import validator from "validator";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -9,13 +10,24 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: true,
+    trim: true,
+    lowercase: true,
+    validate(value) {
+      if (!validator.isEmail(value)) {
+        throw new Error("Email is invalid");
+      }
+    },
   },
   password: {
     type: String,
     required: true,
-  },
-  portfolioId: {
-    type: mongoose.Schema.Types.ObjectId,
+    minlength: 7,
+    trim: true,
+    validate(value) {
+      if (value.toLowerCase().includes("password")) {
+        throw new Error('Password cannot contain "password"');
+      }
+    },
   },
 });
 
