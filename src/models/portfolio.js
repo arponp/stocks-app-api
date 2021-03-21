@@ -20,7 +20,11 @@ const portfolioSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  stocks: [portfolioStockSchema],
+  stocks: {
+    type: Array,
+    of: portfolioStockSchema,
+    required: true,
+  },
 });
 
 const Portfolio = mongoose.model("Portfolio", portfolioSchema, "portfolios");

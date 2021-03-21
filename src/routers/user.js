@@ -39,8 +39,8 @@ router.get("/user/:id", async (req, res) => {
 router.delete("/user/:id", async (req, res) => {
   // delete user
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    const portfolio = await Portfolio.findOneAndDelete({
+    await User.findByIdAndDelete(req.params.id);
+    await Portfolio.findOneAndDelete({
       owner: req.params.id,
     });
     res.status(202).send();

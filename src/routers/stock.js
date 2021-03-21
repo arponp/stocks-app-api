@@ -42,23 +42,19 @@ router.patch("/admin/stocks/update", async (req, res) => {
         `http://api.marketstack.com/v1/tickers/${symbol}/eod?access_key=${apiKey}&limit=1`
       );
       data = data.data;
-      const stock = await Stock.findOneAndUpdate(
-        { symbol },
-        {
-          symbol: data.symbol,
-          name: data.name,
-          exchange: data.eod[0].exchange,
-          hasIntraday: data.has_intraday,
-          hasEod: data.has_eod,
-          open: data.eod[0].open,
-          close: data.eod[0].close,
-          high: data.eod[0].high,
-          low: data.eod[0].low,
-          volume: data.eod[0].volume,
-          date: data.eod[0].date,
-        }
-      );
-      console.log(stock);
+      const stock = await Stock.findOneAndUpdate(symbol, {
+        symbol: data.symbol,
+        name: data.name,
+        exchange: data.eod[0].exchange,
+        hasIntraday: data.has_intraday,
+        hasEod: data.has_eod,
+        open: data.eod[0].open,
+        close: data.eod[0].close,
+        high: data.eod[0].high,
+        low: data.eod[0].low,
+        volume: data.eod[0].volume,
+        date: data.eod[0].date,
+      });
     }
     res.status(202).send();
   } catch (e) {
@@ -82,7 +78,6 @@ router.get("/admin/stocks_in_portfolios/set", async (req, res) => {
     }
     await StocksInPortfolio.deleteMany();
     const doc = new StocksInPortfolio({ symbols: uniqueStocks });
-    console.log(doc);
     await doc.save();
     res.send(doc);
   } catch (e) {
