@@ -35,7 +35,6 @@ router.post("/portfolio", async (req, res) => {
     await portfolio.save();
     res.status(201).send(portfolio.stocks);
   } catch (e) {
-    console.log(e);
     res.status(400).send(e);
   }
 });
@@ -59,7 +58,6 @@ router.patch("/portfolio/quantity", async (req, res) => {
     await portfolio.save();
     res.status(202).send(portfolio.stocks);
   } catch (e) {
-    console.log(e);
     res.status(400).send(e);
   }
 });

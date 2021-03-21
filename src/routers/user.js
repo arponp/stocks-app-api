@@ -43,8 +43,6 @@ router.delete("/user/:id", async (req, res) => {
     const portfolio = await Portfolio.findOneAndDelete({
       owner: req.params.id,
     });
-    console.log(user);
-    console.log(portfolio);
     res.status(202).send();
   } catch (e) {
     res.status(400).send(e);
