@@ -31,6 +31,7 @@ router.post("/portfolio", async (req, res) => {
         portfolio.stocks[foundIndex].quantity += stock.quantity;
       }
     }
+    portfolio.lastUpdated = new Date();
     await portfolio.save();
     res.status(201).send(portfolio.stocks);
   } catch (e) {
@@ -48,6 +49,7 @@ router.patch("/portfolio", async (req, res) => {
         }
       }
     }
+    portfolio.lastUpdated = new Date();
     await portfolio.save();
     res.status(202).send(portfolio.stocks);
   } catch (e) {

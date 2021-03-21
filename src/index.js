@@ -3,7 +3,6 @@ import cors from "cors";
 import stockRouter from "./routers/stock.js";
 import userRouter from "./routers/user.js";
 import portfolioRouter from "./routers/portfolio.js";
-import adminRouter from "./routers/admin.js";
 import "./db/mongoose.js";
 
 const app = express();
@@ -14,6 +13,5 @@ app.use(express.json());
 app.use(stockRouter);
 app.use(userRouter);
 app.use(portfolioRouter);
-app.use(adminRouter);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

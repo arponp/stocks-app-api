@@ -23,7 +23,7 @@ const portfolioSchema = new mongoose.Schema({
   stocks: [portfolioStockSchema],
 });
 
-const Portfolio = mongoose.model("Portfolio", portfolioSchema);
+const Portfolio = mongoose.model("Portfolio", portfolioSchema, "portfolios");
 const PortfolioStock = mongoose.model("PortfolioStock", portfolioStockSchema);
 
 export { Portfolio as default, PortfolioStock };

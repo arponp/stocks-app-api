@@ -1,7 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import axios from "axios";
+import mongoose from "mongoose";
 import Stock from "../models/stock.js";
+import Portfolio from "../models/portfolio.js";
 
 dotenv.config();
 const router = new express.Router();
@@ -57,6 +59,30 @@ router.get("/admin/data", async (req, res) => {
     }
     res.send("Success");
   } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+router.patch("/admin/update/collection", async (req, res) => {
+  try {
+    let uniqueStocks = [];
+    const portfolios = await Portfolio.find();
+    for (const portfolio of portfolios) {
+      for (const portStock of portfolio.stocks) {
+        let exists = false;
+        for (const uniqueStock of uniqueStocks) {
+          portStock.symbol == uniqueStock ? (exists = true) : null;
+        }
+        exists ? null : uniqueStocks.push(portStock.symbol);
+      }
+    }
+    for (const stock of uniqueStocks) {
+      const newStock = new Stock({ symbol: stock });
+      await newStock.save();
+    }
+    res.status(201).send();
+  } catch (e) {
+    console.log(e);
     res.status(400).send(e);
   }
 });
