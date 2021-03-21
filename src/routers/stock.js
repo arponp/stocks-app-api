@@ -11,55 +11,27 @@ const apiKey = process.env.MARKET_STACK_API_KEY;
 
 router.get("/stock/:symbol", async (req, res) => {
   try {
-    console.log(req.params.symbol);
-    const stock = await Stock.findOne({
-      symbol: req.params.symbol.toUpperCase(),
-    });
-    res.send(stock);
-  } catch (e) {
-    console.log(e);
-    res.status(400).send();
-  }
-});
-
-router.get("/admin/tickers", async (req, res) => {
-  try {
-    await Stock.deleteMany({});
-    const { data } = await axios.get(
-      "https://pkgstore.datahub.io/core/s-and-p-500-companies/constituents_json/data/0e5db1e7676fbd54248b1de218b5a908/constituents_json.json"
+    let { data } = await axios.get(
+      `http://api.marketstack.com/v1/tickers/${req.params.symbol}/eod?access_key=${apiKey}&limit=1`
     );
-    for (const company of data) {
-      const stock = new Stock({
-        symbol: company.Symbol,
-        name: company.Name,
-      });
-      await stock.save();
-    }
-    res.status(200).send("Success");
+    data = data.data;
+    const newStock = new Stock({
+      symbol: data.symbol,
+      name: data.name,
+      exchange: data.eod[0].exchange,
+      hasIntraday: data.has_intraday,
+      hasEod: data.has_eod,
+      open: data.eod[0].open,
+      close: data.eod[0].close,
+      high: data.eod[0].high,
+      low: data.eod[0].low,
+      volume: data.eod[0].volume,
+      date: data.eod[0].date,
+    });
+    res.send(newStock);
   } catch (e) {
     console.log(e);
     res.status(400).send();
-  }
-});
-
-router.get("/admin/data", async (req, res) => {
-  try {
-    const stockData = await Stock.find();
-    let symbols = [];
-    for (let i = 0; i < stockData.length; i++) {
-      symbols.push(stockData[i].symbol);
-      if (symbols.length == 20 || i == stockData.length - 1) {
-        for (let symbol of symbols) {
-          url += symbol + ",";
-        }
-        const { data } = await axios.get(url);
-        console.log(data);
-        symbols = [];
-      }
-    }
-    res.send("Success");
-  } catch (e) {
-    res.status(400).send(e);
   }
 });
 
@@ -76,11 +48,29 @@ router.patch("/admin/update/collection", async (req, res) => {
         exists ? null : uniqueStocks.push(portStock.symbol);
       }
     }
+    await Stock.deleteMany();
     for (const stock of uniqueStocks) {
-      const newStock = new Stock({ symbol: stock });
+      let { data } = await axios.get(
+        `http://api.marketstack.com/v1/tickers/${stock}/eod?access_key=${apiKey}&limit=1`
+      );
+      data = data.data;
+      console.log(data);
+      const newStock = new Stock({
+        symbol: data.symbol,
+        name: data.name,
+        exchange: data.eod[0].exchange,
+        hasIntraday: data.has_intraday,
+        hasEod: data.has_eod,
+        open: data.eod[0].open,
+        close: data.eod[0].close,
+        high: data.eod[0].high,
+        low: data.eod[0].low,
+        volume: data.eod[0].volume,
+        date: data.eod[0].date,
+      });
       await newStock.save();
     }
-    res.status(201).send();
+    res.status(202).send();
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
