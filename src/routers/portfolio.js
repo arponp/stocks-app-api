@@ -49,7 +49,7 @@ router.patch("/portfolio", async (req, res) => {
       }
     }
     await portfolio.save();
-    res.send(portfolio.stocks);
+    res.status(202).send(portfolio.stocks);
   } catch (e) {
     res.status(400).send(e);
   }
