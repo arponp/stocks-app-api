@@ -2,16 +2,17 @@ import { Router } from "express";
 import Portfolio from "../models/portfolio.js";
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const router = new Router();
 
 router.post("/users", async (req, res) => {
   // create user
-  const password = await bcrypt.hash(req.body.password, 8);
+  const hashPass = await bcrypt.hash(req.body.password, 8);
   const user = new User({
     name: req.body.name,
     email: req.body.email,
-    password,
+    password: hashPass,
   });
   const portfolio = new Portfolio({
     owner: user._id,
@@ -21,6 +22,28 @@ router.post("/users", async (req, res) => {
     await user.save();
     await portfolio.save();
     res.status(201).send({ id: user._id });
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    let passMatch;
+    if (user) {
+      passMatch = await bcrypt.compare(req.body.password, user.password);
+    } else {
+      res.status(400).send({ message: "No user found" });
+    }
+    if (passMatch) {
+      const token = jwt.sign({ _id: user._id.toString() }, "verySecretValue", {
+        expiresIn: "1h",
+      });
+      res.send(token);
+    } else {
+      res.status(400).send({ message: "No user found" });
+    }
   } catch (e) {
     res.status(400).send(e);
   }
