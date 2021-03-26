@@ -40,7 +40,7 @@ router.post("/portfolio", auth, async (req, res) => {
   }
 });
 
-router.patch("/portfolio/quantity", async (req, res) => {
+router.patch("/portfolio/quantity", auth, async (req, res) => {
   // update stock quantity in portfolio
   try {
     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
@@ -63,7 +63,7 @@ router.patch("/portfolio/quantity", async (req, res) => {
   }
 });
 
-router.patch("/portfolio/remove", async (req, res) => {
+router.patch("/portfolio/remove", auth, async (req, res) => {
   // remove stock from portfolio
   try {
     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
