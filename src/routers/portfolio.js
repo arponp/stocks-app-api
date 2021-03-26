@@ -1,5 +1,6 @@
 import { Router } from "express";
 import Portfolio, { PortfolioStock } from "../models/portfolio.js";
+import auth from "../middleware/auth.js";
 
 const router = new Router();
 
@@ -13,7 +14,7 @@ router.get("/portfolio/:id", async (req, res) => {
   }
 });
 
-router.post("/portfolio", async (req, res) => {
+router.post("/portfolio", auth, async (req, res) => {
   // add to portfolio
   try {
     const portfolio = await Portfolio.findOne({ owner: req.body.owner });
