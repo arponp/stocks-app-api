@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import validator from "validator";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -39,7 +41,13 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
-userSchema.methods.toJSON = () => {
+userSchema.virtual("portfolios", {
+  ref: "Portfolio",
+  localField: "_id",
+  foreignField: "owner",
+});
+
+userSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
@@ -49,41 +57,15 @@ userSchema.methods.toJSON = () => {
   return userObject;
 };
 
-userSchema.methods.generateAuthToken = async () => {
+userSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "thisismynewcourse");
+  const token = jwt.sign({ _id: user._id.toString() }, "thisisstocksapi");
 
   user.tokens = user.tokens.concat({ token });
   await user.save();
 
   return token;
 };
-
-userSchema.statics.findByCredentials = async (email, password) => {
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    throw new Error("Unable to login");
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-
-  if (!isMatch) {
-    throw new Error("Unable to login");
-  }
-
-  return user;
-};
-
-userSchema.pre("save", async (next) => {
-  const user = this;
-
-  if (user.isModified("password")) {
-    user.password = await bcrypt.hash(user.password, 8);
-  }
-
-  next();
-});
 
 const User = mongoose.model("User", userSchema, "users");
 
