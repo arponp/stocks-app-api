@@ -12,7 +12,7 @@ const apiKey = process.env.MARKET_STACK_API_KEY;
 router.get("/stock/:symbol", async (req, res) => {
   try {
     let { data } = await axios.get(
-      `http://api.marketstack.com/v1/tickers/${req.params.symbol}/eod?access_key=${apiKey}&limit=1`
+      `http://api.marketstack.com/v1/tickers/${req.params.symbol}/intraday?access_key=${apiKey}&limit=1`
     );
     data = data.data;
     const newStock = new Stock({
@@ -39,7 +39,7 @@ router.patch("/admin/stocks/update", async (req, res) => {
     const [{ symbols }] = await StocksInPortfolio.find();
     for (const symbol of symbols) {
       let { data } = await axios.get(
-        `http://api.marketstack.com/v1/tickers/${symbol}/eod?access_key=${apiKey}&limit=1`
+        `http://api.marketstack.com/v1/tickers/${symbol}/intraday?access_key=${apiKey}&limit=1`
       );
       data = data.data;
       const stock = await Stock.findOneAndUpdate(symbol, {

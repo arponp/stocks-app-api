@@ -38,6 +38,10 @@ const stockSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  last: {
+    type: Number,
+    required: true,
+  },
   volume: {
     type: Number,
     required: true,
