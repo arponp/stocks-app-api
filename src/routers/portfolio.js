@@ -4,10 +4,10 @@ import auth from "../middleware/auth.js";
 
 const router = new Router();
 
-router.get("/portfolio/:id", async (req, res) => {
+router.get("/portfolio", auth, async (req, res) => {
   // get portfolio
   try {
-    const portfolio = await Portfolio.findOne({ _id: req.params.id });
+    const portfolio = await Portfolio.findOne({ owner: req.user });
     res.send(portfolio);
   } catch (e) {
     res.status(400).send();
@@ -17,7 +17,7 @@ router.get("/portfolio/:id", async (req, res) => {
 router.post("/portfolio", auth, async (req, res) => {
   // add to portfolio
   try {
-    const portfolio = await Portfolio.findOne({ owner: req.body.owner });
+    const portfolio = await Portfolio.findOne({ owner: req.user });
     for (const stock of req.body.stocks) {
       let foundIndex = -1;
       for (let i = 0; i < portfolio.stocks.length; i++) {
@@ -43,7 +43,7 @@ router.post("/portfolio", auth, async (req, res) => {
 router.patch("/portfolio/quantity", auth, async (req, res) => {
   // update stock quantity in portfolio
   try {
-    const portfolio = await Portfolio.findOne({ owner: req.body.owner });
+    const portfolio = await Portfolio.findOne({ owner: req.user });
     for (const stock of req.body.stocks) {
       for (let i = 0; i < portfolio.stocks.length; i++) {
         if (portfolio.stocks[i].symbol == stock.symbol) {
@@ -66,7 +66,7 @@ router.patch("/portfolio/quantity", auth, async (req, res) => {
 router.patch("/portfolio/remove", auth, async (req, res) => {
   // remove stock from portfolio
   try {
-    const portfolio = await Portfolio.findOne({ owner: req.body.owner });
+    const portfolio = await Portfolio.findOne({ owner: req.user });
     for (let i = 0; i < portfolio.stocks.length; i++) {
       if (portfolio.stocks[i].symbol == req.body.symbol) {
         portfolio.stocks.splice(i, 1);
