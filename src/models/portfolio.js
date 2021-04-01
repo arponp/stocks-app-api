@@ -1,33 +1,33 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const portfolioStockSchema = new mongoose.Schema({
-  symbol: {
-    type: String,
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
+    symbol: {
+        type: String,
+        required: true,
+    },
+    quantity: {
+        type: Number,
+        required: true,
+    },
 });
 
 const portfolioSchema = new mongoose.Schema({
-  owner: {
-    type: String,
-    required: true,
-  },
-  lastUpdated: {
-    type: Date,
-    required: true,
-  },
-  stocks: {
-    type: Array,
-    of: portfolioStockSchema,
-    required: true,
-  },
+    owner: {
+        type: String,
+        required: true,
+    },
+    lastUpdated: {
+        type: Date,
+        required: true,
+    },
+    stocks: {
+        type: Array,
+        of: portfolioStockSchema,
+        required: true,
+    },
 });
 
-const Portfolio = mongoose.model("Portfolio", portfolioSchema, "portfolios");
-const PortfolioStock = mongoose.model("PortfolioStock", portfolioStockSchema);
+const Portfolio = mongoose.model('Portfolio', portfolioSchema, 'portfolios');
+const PortfolioStock = mongoose.model('PortfolioStock', portfolioStockSchema);
 
 export { Portfolio as default, PortfolioStock };

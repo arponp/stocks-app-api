@@ -1,73 +1,73 @@
-import mongoose from "mongoose";
-import validator from "validator";
-import jwt from "jsonwebtoken";
+import mongoose from 'mongoose';
+import validator from 'validator';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    unique: true,
-    required: true,
-    trim: true,
-    lowercase: true,
-    validate(value) {
-      if (!validator.isEmail(value)) {
-        throw new Error("Email is invalid");
-      }
-    },
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 7,
-    trim: true,
-    validate(value) {
-      if (value.toLowerCase().includes("password")) {
-        throw new Error('Password cannot contain "password"');
-      }
-    },
-  },
-  tokens: [
-    {
-      token: {
+    name: {
         type: String,
         required: true,
-      },
     },
-  ],
+    email: {
+        type: String,
+        unique: true,
+        required: true,
+        trim: true,
+        lowercase: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error('Email is invalid');
+            }
+        },
+    },
+    password: {
+        type: String,
+        required: true,
+        minlength: 7,
+        trim: true,
+        validate(value) {
+            if (value.toLowerCase().includes('password')) {
+                throw new Error('Password cannot contain "password"');
+            }
+        },
+    },
+    tokens: [
+        {
+            token: {
+                type: String,
+                required: true,
+            },
+        },
+    ],
 });
 
-userSchema.virtual("portfolios", {
-  ref: "Portfolio",
-  localField: "_id",
-  foreignField: "owner",
+userSchema.virtual('portfolios', {
+    ref: 'Portfolio',
+    localField: '_id',
+    foreignField: 'owner',
 });
 
 userSchema.methods.toJSON = function () {
-  const user = this;
-  const userObject = user.toObject();
+    const user = this;
+    const userObject = user.toObject();
 
-  delete userObject.password;
-  delete userObject.tokens;
+    delete userObject.password;
+    delete userObject.tokens;
 
-  return userObject;
+    return userObject;
 };
 
 userSchema.methods.generateAuthToken = async function () {
-  const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "thisisstocksapi", {
-    expiresIn: "1h",
-  });
+    const user = this;
+    const token = jwt.sign({ _id: user._id.toString() }, 'thisisstocksapi', {
+        expiresIn: '1h',
+    });
 
-  user.tokens = user.tokens.concat({ token });
-  await user.save();
+    user.tokens = user.tokens.concat({ token });
+    await user.save();
 
-  return token;
+    return token;
 };
 
-const User = mongoose.model("User", userSchema, "users");
+const User = mongoose.model('User', userSchema, 'users');
 
 export default User;
