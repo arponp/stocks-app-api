@@ -11,25 +11,48 @@ const apiKey = process.env.MARKET_STACK_API_KEY;
 
 router.get('/stock/:symbol', async (req, res) => {
     try {
-        let { data } = await axios.get(
-            `http://api.marketstack.com/v1/tickers/${req.params.symbol}/intraday?access_key=${apiKey}&limit=1`
-        );
-        data = data.data;
-        const newStock = new Stock({
-            symbol: data.symbol,
-            name: data.name,
-            exchange: data.intraday[0].exchange,
-            hasIntraday: data.has_intraday,
-            hasEod: data.has_eod,
-            open: data.intraday[0].open,
-            close: data.intraday[0].close,
-            high: data.intraday[0].high,
-            low: data.intraday[0].low,
-            last: data.intraday[0].last,
-            volume: data.intraday[0].volume,
-            date: data.intraday[0].date,
-        });
-        res.send(newStock);
+        const date = new Date();
+        if (date.getDay() == 0 || date.getDay() == 6) {
+            let { data } = await axios.get(
+                `http://api.marketstack.com/v1/tickers/${req.params.symbol}/eod?access_key=${apiKey}&limit=1`
+            );
+            data = data.data;
+            const newStock = new Stock({
+                symbol: data.symbol,
+                name: data.name,
+                exchange: data.eod[0].exchange,
+                hasIntraday: data.has_intraday,
+                hasEod: data.has_eod,
+                open: data.eod[0].open,
+                close: data.eod[0].close,
+                high: data.eod[0].high,
+                low: data.eod[0].low,
+                last: data.eod[0].last,
+                volume: data.eod[0].volume,
+                date: data.eod[0].date,
+            });
+            res.send(newStock);
+        } else {
+            let { data } = await axios.get(
+                `http://api.marketstack.com/v1/tickers/${req.params.symbol}/intraday?access_key=${apiKey}&limit=1`
+            );
+            data = data.data;
+            const newStock = new Stock({
+                symbol: data.symbol,
+                name: data.name,
+                exchange: data.intraday[0].exchange,
+                hasIntraday: data.has_intraday,
+                hasEod: data.has_eod,
+                open: data.intraday[0].open,
+                close: data.intraday[0].close,
+                high: data.intraday[0].high,
+                low: data.intraday[0].low,
+                last: data.intraday[0].last,
+                volume: data.intraday[0].volume,
+                date: data.intraday[0].date,
+            });
+            res.send(newStock);
+        }
     } catch (e) {
         console.log(e);
         res.status(400).send();
