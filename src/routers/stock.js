@@ -12,7 +12,14 @@ const apiKey = process.env.MARKET_STACK_API_KEY;
 router.get('/stock/:symbol', async (req, res) => {
     try {
         const date = new Date();
-        if (date.getDay() == 0 || date.getDay() == 6) {
+        console.log(date.getHours());
+        if (
+            date.getDay() == 0 ||
+            date.getDay() == 6 ||
+            date.getHours() >= 13 ||
+            (date.getHours() <= 9 && date.getMinutes() < 30)
+        ) {
+            console.log('here');
             let { data } = await axios.get(
                 `http://api.marketstack.com/v1/tickers/${req.params.symbol}/eod?access_key=${apiKey}&limit=1`
             );
