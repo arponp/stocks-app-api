@@ -13,6 +13,13 @@ router.get('/stock/:symbol', async (req, res) => {
     try {
         const date = new Date();
         console.log(date.getHours());
+        // get previous close
+        let { data } = await axios.get(
+            `http://api.marketstack.com/v1/tickers/${req.params.symbol}/eod?access_key=${apiKey}&limit=2`
+        );
+        data = data.data;
+        const prevClose = data.eod[1].close;
+        console.log(prevClose);
         if (
             date.getDay() == 0 ||
             date.getDay() == 6 ||
@@ -37,6 +44,7 @@ router.get('/stock/:symbol', async (req, res) => {
                 last: data.eod[0].last,
                 volume: data.eod[0].volume,
                 date: data.eod[0].date,
+                prevClose,
             });
             res.send(newStock);
         } else {
@@ -57,6 +65,7 @@ router.get('/stock/:symbol', async (req, res) => {
                 last: data.intraday[0].last,
                 volume: data.intraday[0].volume,
                 date: data.intraday[0].date,
+                prevClose,
             });
             res.send(newStock);
         }
@@ -96,7 +105,7 @@ router.patch('/admin/stocks/update', async (req, res) => {
     }
 });
 
-router.get('/admin/stocks_in_portfolios/set', async (req, res) => {
+router.get('/admin/stocks_in_portfolios/update', async (req, res) => {
     try {
         let uniqueStocks = [];
         const portfolios = await Portfolio.find();
@@ -110,7 +119,10 @@ router.get('/admin/stocks_in_portfolios/set', async (req, res) => {
             }
         }
         await StocksInPortfolio.deleteMany();
-        const doc = new StocksInPortfolio({ symbols: uniqueStocks });
+        const doc = new StocksInPortfolio({
+            symbols: uniqueStocks,
+            lastUpdated: new Date(),
+        });
         await doc.save();
         res.send(doc);
     } catch (e) {
@@ -118,4 +130,21 @@ router.get('/admin/stocks_in_portfolios/set', async (req, res) => {
         res.status(400).send();
     }
 });
+
+router.post('/admin/stocks_in_portfolios/add', async (req, res) => {
+    try {
+        const symbols = req.body.symbols;
+        const stocksInPortfolio = await StocksInPortfolio.findById(
+            '6073457eeb64861a4fda96c8'
+        );
+        stocksInPortfolio.symbols = stocksInPortfolio.symbols.concat(symbols);
+        stocksInPortfolio.lastUpdated = new Date();
+        await stocksInPortfolio.save();
+        res.send(stocksInPortfolio);
+    } catch (e) {
+        console.log(e.message);
+        res.status(400).send();
+    }
+});
+
 export default router;

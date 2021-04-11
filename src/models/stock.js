@@ -30,6 +30,10 @@ const stockSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    prevClose: {
+        type: Number,
+        required: true,
+    },
     high: {
         type: Number,
         required: true,

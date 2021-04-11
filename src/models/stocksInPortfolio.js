@@ -8,6 +8,10 @@ const stocksInPortfolioSchema = new mongoose.Schema({
         trim: true,
         uppercase: true,
     },
+    lastUpdated: {
+        type: Date,
+        required: true,
+    },
 });
 
 const StocksInPortfolio = mongoose.model(
