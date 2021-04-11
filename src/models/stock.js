@@ -44,7 +44,6 @@ const stockSchema = new mongoose.Schema({
     },
     last: {
         type: Number,
-        required: true,
     },
     volume: {
         type: Number,

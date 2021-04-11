@@ -7,6 +7,7 @@ const stocksInPortfolioSchema = new mongoose.Schema({
         required: true,
         trim: true,
         uppercase: true,
+        unique: true,
     },
     lastUpdated: {
         type: Date,
