@@ -10,13 +10,25 @@ const router = new express.Router();
 const apiKey = process.env.MARKET_STACK_API_KEY;
 const stocksInPortfolioId = process.env.STOCK_IN_PORTFOLIO_ID;
 
-// router.get('/stock/:symbol', async (req, res) => {
-//     try {
-//     } catch (e) {
-//         console.log(e);
-//         res.status(400).send();
-//     }
-// });
+router.get('/stock/:symbol', async (req, res) => {
+    try {
+        let stock = await Stock.findOne({ symbol: req.params.symbol });
+        if (!stock) {
+            await axios.post(
+                'http://localhost:4000/admin/stocks_in_portfolios/add',
+                {
+                    symbols: [req.params.symbol],
+                }
+            );
+            await axios.patch('http://localhost:4000/admin/stocks/update');
+        }
+        stock = await Stock.findOne({ symbol: req.params.symbol });
+        res.send(stock);
+    } catch (e) {
+        console.log(e);
+        res.status(400).send();
+    }
+});
 
 router.patch('/admin/stocks/update', async (req, res) => {
     try {
