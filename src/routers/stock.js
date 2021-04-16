@@ -1,34 +1,42 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import axios from 'axios';
 import Stock from '../models/stock.js';
 import Portfolio from '../models/portfolio.js';
 import StocksInPortfolio from '../models/stocksInPortfolio.js';
+import { getStock } from '../srv/stock.js';
 
-dotenv.config();
 const router = new express.Router();
 const apiKey = process.env.MARKET_STACK_API_KEY;
 const stocksInPortfolioId = process.env.STOCK_IN_PORTFOLIO_ID;
 
 router.get('/stock/:symbol', async (req, res) => {
+    // don't use multiple endpoints
+    // don't refresh all
     try {
-        let stock = await Stock.findOne({ symbol: req.params.symbol });
+        const stock = await getStock(req.params.symbol);
         if (!stock) {
-            await axios.post(
-                'http://localhost:4000/admin/stocks_in_portfolios/add',
-                {
-                    symbols: [req.params.symbol],
-                }
-            );
-            await axios.patch('http://localhost:4000/admin/stocks/update');
+            // add to maintainted list
+            // const stocksInPortfolios = await addStocksToStocksInPortfolios([
+            //     req.params.symbol.toUpperCase(),
+            // ]);
+            // res.send(stocksInPortfolios);
+            res.send('not found');
         }
-        stock = await Stock.findOne({ symbol: req.params.symbol });
         res.send(stock);
     } catch (e) {
-        console.log(e);
+        console.log(e.message);
         res.status(400).send();
     }
 });
+
+// router.patch('/admin/stocks/update-one/:symbol', async (req,res) => {
+//     try {
+
+//     } catch (e) {
+//         res.status(400).send()
+//         console.log(e)
+//     }
+// })
 
 router.patch('/admin/stocks/update', async (req, res) => {
     try {
