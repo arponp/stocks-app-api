@@ -1,64 +1,79 @@
 import marketStack from '../api/marketStack.js';
-import Stock from '../models/stock.js';
-import StocksInPortfolio from '../models/stocksInPortfolio.js';
+import Stock from '../models/Stock.js';
+import StocksInPortfolios from '../models/StocksInPortfolios.js';
 
-const getStock = async symbol => {
+const getStock = async (req, res) => {
     try {
-        const stock = await Stock.findOne({ symbol });
-        if (!stock) return null;
-        return stock;
+        let stock = await Stock.findOne({ symbol: req.params.symbol });
+        if (!stock) {
+            stock = await addStock(req.params.symbol);
+        }
+        res.send(stock);
     } catch (e) {
-        console.error(e);
-        return null;
+        console.log(e.message);
+        res.status(400).send();
     }
 };
 
 const addStock = async symbol => {
     try {
-        const StocksInPortfolioCollection = await StocksInPortfolio.find();
-        if (StocksInPortfolioCollection[0].symbols.includes(symbol))
-            // check if stock is already there
+        const updatedStocksInPortfolios = await addStockToStocksInPortfolios(
+            symbol
+        );
+        if (updatedStocksInPortfolios == null) {
             return null;
-        const { status } = await marketStack(`/tickers/${symbol}`);
-        if (status != 200) return null; // check if stock exists
-        StocksInPortfolioCollection[0].symbols.push(symbol.toUpperCase());
-        await StocksInPortfolioCollection[0].save();
-        const stock = await updateStock(symbol);
-        return stock;
-    } catch (e) {
-        console.error(e.message);
-        return null;
-    }
-};
-
-const updateStock = async symbol => {
-    try {
-        // verify that stock is being maintained
-        const StocksInPortfolioCollection = await StocksInPortfolio.find();
-        if (!StocksInPortfolioCollection[0].symbols.includes(symbol))
-            return null;
-        // check if stock is already in stock collection
-        const stock = await Stock.findOne({ symbol });
-        const updatedStock = await getStockFromMarketStack(symbol);
-        if (stock) {
-            await Stock.findOneAndDelete({ symbol });
         }
-        await updatedStock.save();
-        return updatedStock;
+        const newStockDocument = await createStockDocument(symbol);
+        return newStockDocument;
     } catch (e) {
         console.log(e.message);
         return null;
     }
 };
 
-const getStockFromMarketStack = async symbol => {
+const validateStock = async symbol => {
+    try {
+        const stock = await Stock.findOne({ symbol });
+        if (stock) return true;
+        const { status } = await marketStack.get(`/tickers/${symbol}`);
+        if (status != 200) return null;
+        return true;
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
+};
+
+const addStockToStocksInPortfolios = async symbol => {
+    // function adds symbol to maintained symbols
+    try {
+        // get stocks in portfolios
+        const stocksInPortfoliosCollection = await StocksInPortfolios.find();
+        const stocksInPortfolios = stocksInPortfoliosCollection[0];
+        stocksInPortfolios.lastUpdated = new Date();
+        // check if already there
+        let found = false;
+        for (const checkSymbol of stocksInPortfolios.symbols) {
+            checkSymbol == symbol.toUpperCase() ? (found = true) : null;
+        }
+        if (found) return null;
+        // validate existence of symbol
+        const { status } = await marketStack.get(`/tickers/${symbol}`);
+        if (status != 200) return null;
+        // add to symbols array
+        stocksInPortfolios.symbols.push(symbol.toUpperCase());
+        await stocksInPortfolios.save();
+        return stocksInPortfolios.symbols;
+    } catch (e) {
+        console.log(e.message);
+        return null;
+    }
+};
+
+const createStockDocument = async symbol => {
     let stock;
     const date = new Date();
-    // get previous close
-    const {
-        data: { data },
-    } = await marketStack.get(`/tickers/${symbol}/eod?limit=2`);
-    const prevClose = data.eod[1].close;
+
     if (
         date.getDay() == 0 ||
         date.getDay() == 6 ||
@@ -67,7 +82,7 @@ const getStockFromMarketStack = async symbol => {
     ) {
         const {
             data: { data },
-        } = await marketStack.get(`/tickers/${symbol}/eod?limit=1`);
+        } = await marketStack.get(`/tickers/${symbol}/eod?limit=2`);
         stock = new Stock({
             symbol: data.symbol,
             name: data.name,
@@ -81,34 +96,31 @@ const getStockFromMarketStack = async symbol => {
             last: data.eod[0].last,
             volume: data.eod[0].volume,
             date: data.eod[0].date,
-            prevClose,
+            prevClose: data.eod[1].close,
         });
     } else {
-        const {
-            data: { data },
-        } = await marketStack.get(`/tickers/${symbol}/intraday?limit=1`);
+        const req1 = await marketStack.get(`/tickers/${symbol}/eod?limit=2`);
+        const req2 = await marketStack.get(
+            `/tickers/${symbol}/intraday?limit=1`
+        );
         stock = new Stock({
-            symbol: data.symbol,
-            name: data.name,
-            exchange: data.intraday[0].exchange,
-            hasIntraday: data.has_intraday,
-            hasEod: data.has_eod,
-            open: data.intraday[0].open,
-            close: data.intraday[0].close,
-            high: data.intraday[0].high,
-            low: data.intraday[0].low,
-            last: data.intraday[0].last,
-            volume: data.intraday[0].volume,
-            date: data.intraday[0].date,
-            prevClose,
+            symbol: req2.data.data.symbol,
+            name: req2.data.data.name,
+            exchange: req2.data.data.intraday[0].exchange,
+            hasIntraday: req2.data.data.has_intraday,
+            hasEod: req2.data.data.has_eod,
+            open: req2.data.data.intraday[0].open,
+            close: req2.data.data.intraday[0].close,
+            high: req2.data.data.intraday[0].high,
+            low: req2.data.data.intraday[0].low,
+            last: req2.data.data.intraday[0].last,
+            volume: req2.data.data.intraday[0].volume,
+            date: req2.data.data.intraday[0].date,
+            prevClose: req1.data.data.eod[1].close,
         });
     }
+    await stock.save();
     return stock;
 };
 
-(async () => {
-    const stock = await addStock('MARA');
-    console.log(stock);
-})();
-
-export { getStock };
+export { getStock, validateStock };

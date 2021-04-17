@@ -5,6 +5,7 @@ const stockSchema = new mongoose.Schema({
         type: String,
         required: true,
         uppercase: true,
+        trim: true,
     },
     name: {
         type: String,

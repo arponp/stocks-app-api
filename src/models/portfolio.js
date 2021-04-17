@@ -1,15 +1,5 @@
 import mongoose from 'mongoose';
-
-const portfolioStockSchema = new mongoose.Schema({
-    symbol: {
-        type: String,
-        required: true,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-    },
-});
+import { portfolioStockSchema } from './PortfolioStock.js';
 
 const portfolioSchema = new mongoose.Schema({
     owner: {
@@ -27,7 +17,15 @@ const portfolioSchema = new mongoose.Schema({
     },
 });
 
-const Portfolio = mongoose.model('Portfolio', portfolioSchema, 'portfolios');
-const PortfolioStock = mongoose.model('PortfolioStock', portfolioStockSchema);
+portfolioSchema.methods.toJSON = function () {
+    const user = this;
+    const userObject = user.toObject();
 
-export { Portfolio as default, PortfolioStock };
+    delete userObject.owner;
+
+    return userObject;
+};
+
+const Portfolio = mongoose.model('Portfolio', portfolioSchema, 'portfolios');
+
+export default Portfolio;

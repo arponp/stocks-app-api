@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const stocksInPortfolioSchema = new mongoose.Schema({
+const stocksInPortfoliosSchema = new mongoose.Schema({
     symbols: {
         type: Array,
         of: String,
@@ -15,10 +15,10 @@ const stocksInPortfolioSchema = new mongoose.Schema({
     },
 });
 
-const StocksInPortfolio = mongoose.model(
+const StocksInPortfolios = mongoose.model(
     'StocksInPortfolio',
-    stocksInPortfolioSchema,
+    stocksInPortfoliosSchema,
     'stocks_in_portfolios'
 );
 
-export default StocksInPortfolio;
+export default StocksInPortfolios;

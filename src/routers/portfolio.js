@@ -1,83 +1,10 @@
 import { Router } from 'express';
-import Portfolio, { PortfolioStock } from '../models/portfolio.js';
+import { getPortfolio, addStockToPortfolio } from '../srv/portfolio.js';
 import auth from '../middleware/auth.js';
 
 const router = new Router();
 
-router.get('/portfolio', auth, async (req, res) => {
-    // get portfolio
-    try {
-        const portfolio = await Portfolio.findOne({ owner: req.user });
-        res.send(portfolio);
-    } catch (e) {
-        res.status(400).send();
-    }
-});
-
-router.post('/portfolio', auth, async (req, res) => {
-    // add to portfolio
-    try {
-        const portfolio = await Portfolio.findOne({ owner: req.user });
-        for (const stock of req.body.stocks) {
-            let foundIndex = -1;
-            for (let i = 0; i < portfolio.stocks.length; i++) {
-                if (portfolio.stocks[i].symbol == stock.symbol) {
-                    foundIndex = i;
-                }
-            }
-            if (foundIndex == -1) {
-                const newStock = new PortfolioStock(stock);
-                portfolio.stocks.push(newStock);
-            } else {
-                portfolio.stocks[foundIndex].quantity += stock.quantity;
-            }
-        }
-        portfolio.lastUpdated = new Date();
-        await portfolio.save();
-        res.status(201).send(portfolio.stocks);
-    } catch (e) {
-        res.status(400).send(e);
-    }
-});
-
-router.patch('/portfolio/quantity', auth, async (req, res) => {
-    // update stock quantity in portfolio
-    try {
-        const portfolio = await Portfolio.findOne({ owner: req.user });
-        for (const stock of req.body.stocks) {
-            for (let i = 0; i < portfolio.stocks.length; i++) {
-                if (portfolio.stocks[i].symbol == stock.symbol) {
-                    if (stock.quantity == 0) {
-                        portfolio.stocks.splice(i, 1);
-                    } else {
-                        portfolio.stocks[i].quantity = stock.quantity;
-                    }
-                }
-            }
-        }
-        portfolio.lastUpdated = new Date();
-        await portfolio.save();
-        res.status(202).send(portfolio.stocks);
-    } catch (e) {
-        res.status(400).send(e);
-    }
-});
-
-router.patch('/portfolio/remove', auth, async (req, res) => {
-    // remove stock from portfolio
-    try {
-        const portfolio = await Portfolio.findOne({ owner: req.user });
-        for (let i = 0; i < portfolio.stocks.length; i++) {
-            if (portfolio.stocks[i].symbol == req.body.symbol) {
-                portfolio.stocks.splice(i, 1);
-                break;
-            }
-        }
-        await portfolio.save();
-        res.status(202).send(portfolio.stocks);
-    } catch (e) {
-        res.status(400).send(e);
-    }
-});
+router.get('/portfolio', auth, getPortfolio);
+router.post('/portfolio', auth, addStockToPortfolio);
 
 export default router;
