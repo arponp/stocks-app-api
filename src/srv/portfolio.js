@@ -21,6 +21,7 @@ const addStockToPortfolio = async (req, res) => {
             return;
         }
         const portfolio = await Portfolio.findOne({ owner: req.user });
+        portfolio.lastUpdated = new Date();
         // check if stock is already there
         let found = false;
         let foundIndex;
@@ -52,11 +53,46 @@ const addStockToPortfolio = async (req, res) => {
             portfolio.stocks.push(portfolioStock);
             await portfolio.save();
         }
-        res.status(201).send(portfolio.stocks);
+        // update portfolio costs
+        portfolio.costs += req.body.quantity * req.body.averageCost;
+        await portfolio.save();
+        res.status(201).send(portfolio);
     } catch (e) {
         console.log(e);
         res.status(400).send();
     }
 };
 
-export { getPortfolio, addStockToPortfolio };
+const sellStockFromPortfolio = async (req, res) => {
+    try {
+        const portfolio = await Portfolio.findOne({ owner: req.user });
+        if (!portfolio) {
+            res.status(400).send('Portfolio not found');
+            return;
+        }
+        // find stock in portfolio and update quantity
+        let stockIndex = -1;
+        for (let i = 0; i < portfolio.stocks.length; i++) {
+            if (portfolio.stocks[i].symbol == req.body.symbol.toUpperCase()) {
+                stockIndex = i;
+            }
+        }
+        if (stockIndex == -1) {
+            res.status(400).send('Stock not in portfolio');
+            return;
+        }
+        if (portfolio.stocks[stockIndex].quantity - req.body.quantity < 0) {
+            res.status(400).send('Overselling quantity');
+            return;
+        }
+        portfolio.stocks[stockIndex].quantity -= req.body.quantity;
+        portfolio.sales += req.body.quantity * req.body.averageCost;
+        await portfolio.save();
+        res.status(202).send(portfolio);
+    } catch (e) {
+        console.log(e);
+        res.status(400).send();
+    }
+};
+
+export { getPortfolio, addStockToPortfolio, sellStockFromPortfolio };

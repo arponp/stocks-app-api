@@ -15,15 +15,25 @@ const portfolioSchema = new mongoose.Schema({
         of: portfolioStockSchema,
         required: true,
     },
+    sales: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    costs: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
 });
 
 portfolioSchema.methods.toJSON = function () {
-    const user = this;
-    const userObject = user.toObject();
+    const portfolio = this;
+    const portfolioObject = portfolio.toObject();
 
-    delete userObject.owner;
+    delete portfolioObject.owner;
 
-    return userObject;
+    return portfolioObject;
 };
 
 const Portfolio = mongoose.model('Portfolio', portfolioSchema, 'portfolios');
