@@ -66,6 +66,7 @@ const addStockToPortfolio = async (req, res) => {
 const sellStockFromPortfolio = async (req, res) => {
     try {
         const portfolio = await Portfolio.findOne({ owner: req.user });
+        portfolio.lastUpdated = new Date();
         if (!portfolio) {
             res.status(400).send('Portfolio not found');
             return;
@@ -85,7 +86,12 @@ const sellStockFromPortfolio = async (req, res) => {
             res.status(400).send('Overselling quantity');
             return;
         }
-        portfolio.stocks[stockIndex].quantity -= req.body.quantity;
+        if (portfolio.stocks[stockIndex].quantity - req.body.quantity == 0) {
+            console.log('here');
+            portfolio.stocks.splice(stockIndex, 1);
+        } else {
+            portfolio.stocks[stockIndex].quantity -= req.body.quantity;
+        }
         portfolio.sales += req.body.quantity * req.body.averageCost;
         await portfolio.save();
         res.status(202).send(portfolio);

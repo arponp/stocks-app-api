@@ -37,6 +37,7 @@ const validateStock = async symbol => {
         if (stock) return true;
         const { status } = await marketStack.get(`/tickers/${symbol}`);
         if (status != 200) return null;
+        await addStock(symbol);
         return true;
     } catch (e) {
         console.log(e);

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { transactionSchema } from './Transaction.js';
 
 const portfolioStockSchema = new mongoose.Schema({
     symbol: {
@@ -14,6 +15,11 @@ const portfolioStockSchema = new mongoose.Schema({
     },
     averageCost: {
         type: Number,
+        required: true,
+    },
+    transactions: {
+        type: Array,
+        of: transactionSchema,
         required: true,
     },
 });

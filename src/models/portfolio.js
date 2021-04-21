@@ -15,12 +15,12 @@ const portfolioSchema = new mongoose.Schema({
         of: portfolioStockSchema,
         required: true,
     },
-    sales: {
+    investment: {
         type: Number,
         required: true,
         default: 0,
     },
-    costs: {
+    realizedNetProfit: {
         type: Number,
         required: true,
         default: 0,
