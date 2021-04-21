@@ -10,6 +10,6 @@ const router = new Router();
 
 router.get('/portfolio', auth, getPortfolio);
 router.patch('/portfolio/add', auth, addStockToPortfolio);
-router.patch('/portfolio/sell', auth, sellStockFromPortfolio);
+// router.patch('/portfolio/sell', auth, sellStockFromPortfolio);
 
 export default router;
