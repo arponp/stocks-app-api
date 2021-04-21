@@ -40,8 +40,18 @@ const login = async (req, res) => {
         res.status(400).send({ message: 'Invalid email' });
     } catch (e) {
         console.log(e.message);
-        return null;
+        res.status(400).send();
     }
 };
 
-export { createUser, login };
+const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.user);
+        user ? res.status(204).send() : res.status(400).send();
+    } catch (e) {
+        console.log(e);
+        res.status(400).send();
+    }
+};
+
+export { createUser, login, deleteUser };
