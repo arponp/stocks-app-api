@@ -33,11 +33,6 @@ const updateStocks = async () => {
     }
 };
 
-(async () => {
-    const updates = await updateStocks();
-    console.log(updates);
-})();
-
 const updateStock = async symbol => {
     try {
         const stock = await Stock.findOne({ symbol: symbol.toUpperCase() });

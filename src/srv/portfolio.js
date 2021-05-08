@@ -7,12 +7,12 @@ const getPortfolio = async (req, res) => {
         const portfolio = await Portfolio.findOne({ owner: req.user });
         portfolio != null ? res.send(portfolio) : res.status(400).send();
     } catch (e) {
-        console.log(e);
+        console.log(e.message);
         res.status(400).send();
     }
 };
 
-const addStockToPortfolio = async (req, res) => {
+const buyStocks = async (req, res) => {
     try {
         // check if stocks are valid
         const isValidStock = await validateStock(req.body.symbol);
@@ -32,6 +32,7 @@ const addStockToPortfolio = async (req, res) => {
             ) {
                 foundIndex = i;
                 found = true;
+                break;
             }
         }
         if (found) {
@@ -63,7 +64,7 @@ const addStockToPortfolio = async (req, res) => {
     }
 };
 
-const sellStockFromPortfolio = async (req, res) => {
+const sellStocks = async (req, res) => {
     try {
         const portfolio = await Portfolio.findOne({ owner: req.user });
         portfolio.lastUpdated = new Date();
@@ -101,4 +102,4 @@ const sellStockFromPortfolio = async (req, res) => {
     }
 };
 
-export { getPortfolio, addStockToPortfolio, sellStockFromPortfolio };
+export { getPortfolio, buyStocks, sellStocks };
