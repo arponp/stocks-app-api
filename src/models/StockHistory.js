@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const stockPriceHistorySchema = new mongoose.Schema({
+const stockHistorySchema = new mongoose.Schema({
     symbol: {
         type: String,
         required: true,
@@ -14,10 +14,10 @@ const stockPriceHistorySchema = new mongoose.Schema({
     },
 });
 
-const StockPriceHistory = new mongoose.model(
-    'StockPriceHistory',
-    stockPriceHistorySchema,
-    'stock_price_histories'
+const StockHistory = new mongoose.model(
+    'StockHistory',
+    stockHistorySchema,
+    'stock_histories'
 );
 
-export default StockPriceHistory;
+export default StockHistory;
