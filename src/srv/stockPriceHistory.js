@@ -12,4 +12,18 @@ const getStockHistory = async symbol => {
     }
 };
 
+const createStockHistory = async (symbol, initialPrice) => {
+    try {
+        const newStockHistory = new StockHistory({
+            symbol,
+            priceHistory: [initialPrice],
+        });
+        await newStockHistory.save();
+        return newStockHistory;
+    } catch (e) {
+        console.log(e.message);
+        return null;
+    }
+};
+
 export { getStockHistory };

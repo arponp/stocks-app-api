@@ -10,7 +10,6 @@ const stockHistorySchema = new mongoose.Schema({
     priceHistory: {
         type: Array,
         required: true,
-        default: [],
     },
 });
 
