@@ -82,7 +82,6 @@ const validateStock = async symbol => {
 const createStockDocument = async symbol => {
     let stock;
     const date = new Date();
-
     if (
         date.getDay() == 0 ||
         date.getDay() == 6 ||
