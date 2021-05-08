@@ -4,6 +4,11 @@ import {
     addStockToStocksInPortfolios,
     getStocksInPortfolios,
 } from './stocksInPortfolios.js';
+import {
+    getStockHistory,
+    createStockHistory,
+    addStockPrice,
+} from './stockHistory.js';
 
 const getStock = async (req, res) => {
     try {
@@ -106,6 +111,12 @@ const createStockDocument = async symbol => {
             date: data.eod[0].date,
             prevClose: data.eod[1].close,
         });
+        const stockHistory = await createStockHistory(
+            stock.symbol,
+            stock.close,
+            stock.date
+        );
+        console.log(stockHistory);
     } else {
         const req1 = await marketStack.get(`/tickers/${symbol}/eod?limit=2`);
         const req2 = await marketStack.get(
@@ -126,6 +137,12 @@ const createStockDocument = async symbol => {
             date: req2.data.data.intraday[0].date,
             prevClose: req1.data.data.eod[1].close,
         });
+        const stockHistory = await createStockHistory(
+            stock.symbol,
+            stock.last,
+            stock.date
+        );
+        console.log(stockHistory);
     }
     await stock.save();
     return stock;
@@ -159,6 +176,12 @@ const createUpdateDocument = async symbol => {
             date: data.eod[0].date,
             prevClose: data.eod[1].close,
         };
+        const stockHistory = await addStockPrice(
+            stock.symbol,
+            stock.close,
+            stock.date
+        );
+        console.log(stockHistory);
     } else {
         const req1 = await marketStack.get(`/tickers/${symbol}/eod?limit=2`);
         const req2 = await marketStack.get(
@@ -179,6 +202,12 @@ const createUpdateDocument = async symbol => {
             date: req2.data.data.intraday[0].date,
             prevClose: req1.data.data.eod[1].close,
         };
+        const stockHistory = await addStockPrice(
+            stock.symbol,
+            stock.last,
+            stock.date
+        );
+        console.log(stockHistory);
     }
     return stock;
 };

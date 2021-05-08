@@ -12,11 +12,11 @@ const getStockHistory = async symbol => {
     }
 };
 
-const createStockHistory = async (symbol, initialPrice) => {
+const createStockHistory = async (symbol, initialPrice, date) => {
     try {
         const newStockHistory = new StockHistory({
             symbol,
-            priceHistory: [initialPrice],
+            priceHistory: [{ price: initialPrice, date }],
         });
         await newStockHistory.save();
         return newStockHistory;
@@ -26,10 +26,10 @@ const createStockHistory = async (symbol, initialPrice) => {
     }
 };
 
-const addStockPrice = async (symbol, price) => {
+const addStockPrice = async (symbol, price, date) => {
     try {
         const stockHistory = await getStockHistory(symbol);
-        stockHistory.priceHistory.push(price);
+        stockHistory.priceHistory.push({ price, date });
         await stockHistory.save();
         return stockHistory;
     } catch (e) {
